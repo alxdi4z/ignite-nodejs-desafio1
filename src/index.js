@@ -33,14 +33,16 @@ app.post('/users', (request, response) => {
     })
   }
 
-  users.push({
+  const user = {
     id: uuidv4(),
     name,
     username,
     todos: []
-  })
+  }
 
-  return response.status(201).send();
+  users.push(user)
+
+  return response.status(201).json(user);
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
@@ -74,7 +76,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
     Object.assign(todo, { title, deadline: new Date(deadline) });
     return response.status(201).json(todo);
   } else {
-    return response.status(400).json({
+    return response.status(404).json({
       error: "Todo not found"
     });
   }
@@ -87,9 +89,9 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   const todo = user.todos.find(todo => todo.id === id);
   if (todo) {
     Object.assign(todo, { done: true });
-    return response.status(201).send();
+    return response.status(201).json(todo);
   } else {
-    return response.status(400).json({
+    return response.status(404).json({
       error: "Todo not found"
     });
   }
@@ -102,7 +104,7 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const todo = user.todos.find(todo => todo.id === id);
   if (todo) {
     user.todos.splice(todo, 1);
-    return response.status(201).send();
+    return response.status(204).send();
   } else {
     return response.status(404).json({
       error: 'Todo not found'
